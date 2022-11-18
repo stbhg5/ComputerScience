@@ -1,2 +1,2 @@
 # ComputerScience
-Computer Science Study
+컴퓨터 공학 공부
