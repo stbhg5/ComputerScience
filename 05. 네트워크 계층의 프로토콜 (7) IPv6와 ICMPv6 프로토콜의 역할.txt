@@ -1,0 +1,7 @@
+[네트워크 계층의 프로토콜 (7) IPv6와 ICMPv6 프로토콜의 역할]
+
+# CMD
+ipconfig
+
+# Wireshark
+ipv6 (필터)

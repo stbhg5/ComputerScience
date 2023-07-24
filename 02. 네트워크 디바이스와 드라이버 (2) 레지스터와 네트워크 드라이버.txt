@@ -1,0 +1,14 @@
+[네트워크 디바이스와 드라이버 (2) 레지스터와 네트워크 드라이버]
+
+1. 커널 부팅(운영체제가 올라올 때)과 네트워크 디바이스 드라이버
+1) 등록된 네트워크 디바이스 드라이버의 확인
+# 리눅스 명령어
+cat /proc/net/dev (프로세스의 관리 구조체 나열 - 네트워크 - 디바이스 나열, 받아진것과 보낸것 통계를 본다)
+ifconfig
+apt-get install net-tools (해당 패키지 설치 - 네트워크 디바이스의 툴 설치)
+sudo apt-get install net-tools
+stbhg3794!
+ifconfig
+sudo apt purge net-tools (우분투 apt 사용법 : https://www.manualfactory.net/11953)
+Y
+ifconfig

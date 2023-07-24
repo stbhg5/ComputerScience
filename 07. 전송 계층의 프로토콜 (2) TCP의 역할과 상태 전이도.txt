@@ -1,0 +1,91 @@
+[전송 계층의 프로토콜 (2) TCP의 역할과 상태 전이도]
+
+# CMD
+netstat -nt
+
+    활성 연결
+
+    프로토콜  로컬 주소              외부 주소              상태            오프로드 상태
+
+    TCP    127.0.0.1:11312        127.0.0.1:11339        ESTABLISHED     InHost
+    TCP    127.0.0.1:11318        127.0.0.1:11336        ESTABLISHED     InHost
+    TCP    127.0.0.1:11336        127.0.0.1:11318        ESTABLISHED     InHost
+    TCP    127.0.0.1:11339        127.0.0.1:11312        ESTABLISHED     InHost
+    TCP    127.0.0.1:11349        127.0.0.1:11350        ESTABLISHED     InHost
+    TCP    127.0.0.1:11350        127.0.0.1:11349        ESTABLISHED     InHost
+    TCP    127.0.0.1:11374        127.0.0.1:11375        ESTABLISHED     InHost
+    TCP    127.0.0.1:11375        127.0.0.1:11374        ESTABLISHED     InHost
+    TCP    127.0.0.1:11376        127.0.0.1:11377        ESTABLISHED     InHost
+    TCP    127.0.0.1:11377        127.0.0.1:11376        ESTABLISHED     InHost
+    TCP    127.0.0.1:11378        127.0.0.1:11379        ESTABLISHED     InHost
+    TCP    127.0.0.1:11379        127.0.0.1:11378        ESTABLISHED     InHost
+    TCP    127.0.0.1:11395        127.0.0.1:11396        ESTABLISHED     InHost
+    TCP    127.0.0.1:11396        127.0.0.1:11395        ESTABLISHED     InHost
+    TCP    172.30.1.15:11241      20.198.119.84:443      ESTABLISHED     InHost
+    TCP    172.30.1.15:11314      52.1.141.19:443        ESTABLISHED     InHost
+    TCP    172.30.1.15:11332      146.66.152.38:27035    ESTABLISHED     InHost
+    TCP    172.30.1.15:11337      3.227.194.183:443      ESTABLISHED     InHost
+    TCP    172.30.1.15:11372      162.247.241.2:443      CLOSE_WAIT      InHost
+    TCP    172.30.1.15:11383      121.53.203.203:443     ESTABLISHED     InHost
+    TCP    172.30.1.15:11394      162.247.241.2:443      CLOSE_WAIT      InHost
+    TCP    172.30.1.15:11410      211.231.103.247:443    ESTABLISHED     InHost
+    TCP    172.30.1.15:11559      162.247.243.29:443     ESTABLISHED     InHost
+    TCP    172.30.1.15:11744      39.120.124.183:65004   ESTABLISHED     InHost
+    TCP    172.30.1.15:12309      74.125.23.188:5228     ESTABLISHED     InHost
+    TCP    172.30.1.15:12627      52.22.50.112:443       ESTABLISHED     InHost
+    TCP    172.30.1.15:12672      18.215.56.56:443       ESTABLISHED     InHost
+    TCP    172.30.1.15:12683      35.153.123.48:8095     ESTABLISHED     InHost
+    TCP    172.30.1.15:12698      54.204.109.156:9000    ESTABLISHED     InHost
+    TCP    172.30.1.15:12722      23.21.244.192:443      ESTABLISHED     InHost
+    TCP    172.30.1.15:12943      23.7.129.191:443       ESTABLISHED     InHost
+    TCP    172.30.1.15:12947      162.247.241.14:443     ESTABLISHED     InHost
+    TCP    172.30.1.15:12949      13.107.5.93:443        ESTABLISHED     InHost
+    TCP    172.30.1.15:12952      13.107.42.18:443       ESTABLISHED     InHost
+    TCP    172.30.1.15:12954      117.18.232.200:443     ESTABLISHED     InHost
+    TCP    172.30.1.15:12955      13.107.213.74:443      ESTABLISHED     InHost
+    TCP    172.30.1.15:12957      20.205.69.80:443       ESTABLISHED     InHost
+    TCP    172.30.1.15:12968      204.79.197.200:443     ESTABLISHED     InHost
+    TCP    172.30.1.15:12969      204.79.197.200:443     ESTABLISHED     InHost
+    TCP    172.30.1.15:12970      23.53.2.153:443        ESTABLISHED     InHost
+    TCP    172.30.1.15:12979      23.35.218.26:443       ESTABLISHED     InHost
+    TCP    172.30.1.15:12982      40.99.9.242:443        ESTABLISHED     InHost
+    TCP    172.30.1.15:12985      185.125.190.21:443     CLOSE_WAIT      InHost
+    TCP    172.30.1.15:12986      168.126.63.1:53        TIME_WAIT       InHost
+    TCP    172.30.1.15:12987      168.126.63.1:53        TIME_WAIT       InHost
+    TCP    172.30.1.15:12989      168.126.63.1:53        TIME_WAIT       InHost
+    TCP    172.30.1.15:12990      168.126.63.1:53        TIME_WAIT       InHost
+    TCP    172.30.1.15:12992      1.255.101.67:80        ESTABLISHED     InHost
+    TCP    172.30.1.15:12993      104.76.75.23:443       ESTABLISHED     InHost
+    TCP    172.30.1.15:12996      168.126.63.1:53        TIME_WAIT       InHost
+    TCP    172.30.1.15:12997      168.126.63.1:53        TIME_WAIT       InHost
+    TCP    172.30.1.15:12998      35.190.30.154:443      TIME_WAIT       InHost
+    TCP    172.30.1.15:13000      159.153.191.238:443    ESTABLISHED     InHost
+    TCP    172.30.1.15:13003      104.76.75.23:443       ESTABLISHED     InHost
+    TCP    172.30.1.15:13005      104.76.75.23:443       ESTABLISHED     InHost
+    TCP    172.30.1.15:13006      104.76.75.23:443       ESTABLISHED     InHost
+    TCP    172.30.1.15:13009      104.18.156.37:443      ESTABLISHED     InHost
+    TCP    172.30.1.15:13013      104.18.156.37:443      ESTABLISHED     InHost
+    TCP    172.30.1.15:13014      104.76.75.23:443       ESTABLISHED     InHost
+    TCP    172.30.1.15:13016      204.79.197.254:443     ESTABLISHED     InHost
+    TCP    172.30.1.15:13017      131.253.33.254:443     ESTABLISHED     InHost
+    TCP    172.30.1.15:13018      211.115.106.74:80      CLOSE_WAIT      InHost
+    TCP    172.30.1.15:13019      211.115.106.74:80      CLOSE_WAIT      InHost
+    TCP    172.30.1.15:13020      13.107.246.254:443     ESTABLISHED     InHost
+    TCP    172.30.1.15:13021      13.107.42.10:443       ESTABLISHED     InHost
+    TCP    172.30.1.15:13022      23.54.19.42:443        ESTABLISHED     InHost
+    TCP    172.30.1.15:13023      204.79.197.222:443     ESTABLISHED     InHost
+    TCP    172.30.1.15:13025      13.225.131.105:443     ESTABLISHED     InHost
+    TCP    172.30.1.15:13026      211.115.106.74:80      CLOSE_WAIT      InHost
+    TCP    172.30.1.15:13028      34.197.117.11:443      ESTABLISHED     InHost
+    TCP    172.30.1.15:13029      211.115.106.74:80      CLOSE_WAIT      InHost
+    TCP    172.30.1.15:13030      107.20.7.12:443        ESTABLISHED     InHost
+    TCP    172.30.1.15:13032      211.249.201.68:443     TIME_WAIT       InHost
+    TCP    172.30.1.15:13034      211.249.201.68:443     TIME_WAIT       InHost
+    TCP    172.30.1.15:13035      100.24.218.116:443     CLOSE_WAIT      InHost
+    TCP    172.30.1.15:13040      168.126.63.1:53        TIME_WAIT       InHost
+    TCP    172.30.1.15:13041      168.126.63.1:53        TIME_WAIT       InHost
+    TCP    172.30.1.15:13042      119.205.236.150:443    ESTABLISHED     InHost
+    TCP    [::1]:4699             [::1]:11323            ESTABLISHED     InHost
+    TCP    [::1]:11323            [::1]:4699             ESTABLISHED     InHost
+    TCP    [::1]:11326            [::1]:11331            ESTABLISHED     InHost
+    TCP    [::1]:11331            [::1]:11326            ESTABLISHED     InHost
