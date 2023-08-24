@@ -1,0 +1,97 @@
+# CMD
+wsl -l -v
+    NAME            STATE           VERSION
+  * Ubuntu          Running         2
+    Ubuntu-22.04    Running         2
+wsl --set-version Ubuntu-22.04 1
+    변환이 진행 중입니다. 이 작업은 몇 분 정도 걸릴 수 있습니다.
+    작업을 완료했습니다.
+wsl -l -v
+    NAME            STATE           VERSION
+  * Ubuntu          Stopped         2
+    Ubuntu-22.04    Stopped         1
+wsl -l -v
+
+※ 팁! WSL1과 WSL2의 차이
+버전 2는 현재 NAT를 통해 서브넷으로 구성되 윈도우에서 접근할수 없는 대신에 빠른 구동이 가능하고, 버전 1은 느리지만 브릿지 네트워크를 통해 외부연결이 가능한 IP를 고유기로부터 DHCP 프로토콜을 통해 받을 수 있다.
+
+# Ubuntu
+ifconfig (해당 IP 주소 정상적 받아오는지 확인)
+
+클래스 C의 주소 (192로 시작하면 사설망 주소)
+네트워크ID.호스트ID → 192.168.50(네트워크ID).104(호스트ID)
+192.168.50.104
+
+# CMD
+ipconfig (IP : 192.168.50.104)
+
+윈도우 리눅스 서브시스템(WSL)은 IP 윈도우와 공유해 사용
+
+# Oracle VM VirtualBox Ubuntu
+ifconfig (IP : 192.168.50.79)
+ping 192.168.50.104
+컨트롤 + C
+
+우분투 리눅스 192.168.50.79 --ping(icmp)--> WSL 혹은 윈도우 192.168.50.104
+
+# Ubuntu
+clear
+ipconfig eth1
+ping 192.168.50.79
+컨트롤 + C
+
+WSL 혹은 윈도우 192.168.50.104 --ping(icmp)--> 우분투 리눅스 192.168.50.79
+
+양쪽에 클라이언트 / 서버를 구성할 수 있게 되었습니다.
+
+# Ubuntu
+cd projects
+mkdir fork
+cd fork
+code . (Vscode 실행)
+fork.c (파일 생성)
+
+# fork.c
+#include <stdio.h>
+
+void main(int argc, char *argv[]) {
+    
+    int pid;
+
+    pid = fork();
+
+    // 내부적으로 Child Process와 Parent Process 2개로 분리됨
+    if (pid < 0) {
+        // ERROR
+        printf("Error\n");
+    } else if (pid == 0) { // CHILD
+        printf("CHILD: Child Run!\n");
+        execl("/bin/ls", "ls", NULL); // execl() : 현재 코드의 문맥을 다른 프로그램으로 바꾸어 실행 (2번째 매개변수는 이름)
+    } else { // PARENT
+        wait(NULL); // wait() : 자식이 종료되기 전까지 부모 프로세스가 기다림
+        printf("PARENT : Child Complete\n");
+    }
+
+}
+
+이후 Terminal - Run Build Task...
+기본 빌드 설정 파일을 생성하려면 'Configure Default Build Task' 선택 - gcc build active file(compiler: /usr/bin/gcc)를 선택하면 빌드 설정 파일인 tasks.json이 생성됨
+"command": "/usr/bin/gcc", // 컴파일러의 이름 gcc
+"args": [
+    "-g",
+    "${file}",
+    "-o",
+    "${fileDirname}/${fileBasenameNoExtension}" // 실행 파일 이름 (현재 편집중인 파일)
+], // 컴파일러 옵션 : -g 디버깅 정보, -o 빌드 및 실행 이미지 생성
+
+Terminal - Run Build Task... 클릭하면 fork 라는 실행 파일 이미지 생성됨.
+
+Terminal - New Terminal 클릭
+
+# Ubuntu
+ls
+    fork  fork.c
+./fork
+    CHILD: Child Run!
+    fork  fork.c (Main 문맥으로 뒤집어 씌워져 명령어 실행됨)
+    PARENT : Child Complete
