@@ -1,0 +1,134 @@
+[소켓 프로그래밍 사례(C언어) (2) fork 서버 부분의 작성과 실행]
+
+# Ubuntu
+cd projects
+mkdir fork_server
+cd fork_server
+code .
+fork_server.c (파일 생성)
+
+# fork_server.c
+#include "inet.h" // 자신이 별도로 선언한 것은 더블 쿼테이션으로 선언
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+int main(int argc, char* argv[]) {
+
+    int sockfd, newsockfd, clilen;
+
+    struct sockaddr_in cli_addr;
+    struct sockaddr_in serv_addr;
+
+    int pid; // fork 위한 pid
+
+    char buff[30]; // 데이터 보내거나 받을 때 사용할 버퍼
+    pname = argv[0]; // 명령형으로부터 자신의 실행 이름 가져옴
+
+    // 1단계 : socket()을 사용해 초기화
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) { // AN_INET IPv4용, AN_INET6 IPv6용 / SOCK_DGRAM UDP용, SOCK_STREAM TCP용 / 0 자동으로 선택, 즉 IP선택
+        puts("Server: Error");
+        exit(1); // 에러넘버 1
+    }
+
+    // 2단계 : 주소의 구성
+    // Server Address
+    // bzero(공간, 사이즈) 함수 : 첫 번째 지정된 메모리 공간을 두 번째 인자의 사이즈 만큼 0으로 채우며 초기화
+    // memset(공간, 값, 사이즈) 함수 : 지정된 메모리 공간을 두 번째 값으로 세 번째 사이즈 만큼 채우기
+    bzero((char *) &serv_addr, sizeof(serv_addr));
+    serv_addr.sin_famaily = AN_INET;
+    serv_addr.sin_addr.s_addr = htonl(INADDR_ANNY); // htonl() : 호스트 to long, 192.168.50.39와 같은 형태를 이진 주소값으로 변경 / INADDR_ANNY : 서버는 클라이언트의 어떤 주소라도 받기 위해 INADDR_ANNY를 사용 (값이 0으로 지정됨)
+    serv_addr.SIN_PORT = htons(SERV_TCP_PORT);
+
+    // 3단계 : bind()를 사용해 정의된 주소와 포트번호를 소켓에 지정
+    if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) { // &serv_addr : 주소접근 형태 서버주소 / 캐스팅 : 제시된 매개변수와 타입을동일하게 하기 위한 타입 변환 과정
+        puts("Server: bind error!");
+        exit(1);
+    }
+
+    // 4단계 : 클라이언트와 접속 가능하게 듣고 있기
+    listen(sockfd, 5); // 2번째 매개변수는 backlog의 값으로, 여러 개의 클라이언트의 값 가지도록 한다.
+    clilen = sizeof(cli_addr);
+
+    // 5단계 : 클라이언트 요청 받기
+    for(;;) { // while (1), for(;;) : 프로그램이 종료되지 않고 무한루프를 돌며 클라이언트를 받는다.
+
+        newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+
+        // 6단계 : 클라이언트 요청을 자식 프로세스로 분리하기
+        if ((pid = fork()) == 0) {
+            // CHILD
+            if (newsockfd < 0) { // accept() 제대로 안된 경우
+                puts("Server: accept error!");
+                exit(1);
+            }
+            close(sockfd); // 서버-부모 소켓 닫음
+
+            if (read(newsockfd, buff, 20) <= 0) {
+                puts("Server: read error!");
+                exit(1);
+            }
+            prindf("Server: Received String = %s\n", buff);
+
+            // 7단계 : 자식 소켓 닫음
+            close(newsockfd); // 자식 소켓 닫음
+            exit(0); // 정상종료인 0 호출 / end of CHILD
+        }
+        close(newsockfd); // 자식 소켓 닫음, 이후 부모가 처리해야될 부분이기 때문
+        if (pid == -1) {
+            // ERROR
+            perror("fork error"); // perror() : 에러출력 전용함수
+        }
+
+    } // loop end
+
+    close(sockfd); // 서버-부모 소켓 닫음
+
+    return 0;
+
+}
+
+# inet.h (파일 생성)
+// 소켓 함수들의 헤더
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+// UDP/TCP에서 사용할 포트번호
+// #define SERV_UDP_PORT 7000
+// #define SERV_TCP_PORT 7000
+#define SERV_UDP_PORT 9191
+#define SERV_TCP_PORT 9191
+
+// 서버의 IP 주소
+// #define SERV_HOST_ADDR "192.168.50.79" // WSL
+#define SERV_HOST_ADDR "192.168.50.104" // Oracle VM VirtualBox Ubuntu
+// WSL 환경에서 서버로 구동하기 위해 바꿈
+
+char *pname;
+
+// 여기서는 이 정의문을 사용하지 않고 클라이언트에서 사용한다.
+
+이후 저장 후 Terminal - Run Build Task... 클릭하면 fork 라는 실행 파일 이미지 생성됨.
+
+Terminal - New Terminal 클릭
+
+# Ubuntu
+ls
+./fork_server
+    Server: bind error!
+(bind 에러 이유 : 다른 프로그램이 주소나 포트를 사용하는 경우에 bind 에러를 발생시킨다. 여기서는 어떤 주소든 받을 수 있기 때문에 7000번 포트를 누군가 사용하고 있음을 알 수 있다.
+
+fork_server.c 파일 선택 후 Terminal - Run Build Task...
+
+# Ubuntu
+./fork_server
+(방화벽 접근 허용창 뜸 - 허용)
+(fork_server 대기 상태가 됨 - 서버 프로그램 완성)
+
+@@ 참고링크
+- C언어 주석 (https://dojang.io/mod/page/view.php?id=20)
+- C언어 &가 붙는 이유 (https://wikidocs.net/2154)
+변수 이름 앞에 &를 붙이면 그 변수의 주소를 알려준다.
