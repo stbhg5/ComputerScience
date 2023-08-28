@@ -1,0 +1,88 @@
+[소켓 프로그래밍 사례 (C언어) (3) 클라이언트 작성 및 실행과 패킷 분석]
+
+# Oracle VM VirtualBox Ubuntu
+mkdir projects
+cd projects
+mkdir fork_client
+cd fork_client
+code .
+client.c (파일 생성)
+
+# client.c
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+#define SERV_UDP_PORT 9191
+#define SERV_TCP_PORT 9191
+#define SERV_HOST_ADDR "192.168.50.104"
+
+char *pname;
+
+int main(int argc, char *argv[]) {
+
+    int sockfd;
+
+    struct sockaddr_in serv_addr;
+
+    pname = argv[0];
+
+    bzero(&serv_addr, sizeof(serv_addr));
+    serv_addr.sin_famaily = AF_INET;
+    serv_addr.sin_addr.s_addr = inet_addr(SERV_HOST_ADDR);
+    serv_addr.sin_port = htons(SERV_TCP_PORT);
+
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        puts("Client: Error!");
+        exit(1);
+    }
+
+    if (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
+        puts("Client: connect error");
+        exit(1);
+    }
+
+    if (write(sockfd, "HelloWorld\n", 20) < 20) {
+        puts("Client: write error");
+        exit(1);
+    }
+    close(sockfd);
+
+    return 0;
+
+}
+
+저장 후 Terminal - Run Build Task...
+Terminal - New Terminal 클릭
+
+# Oracle VM VirtualBox Ubuntu
+./client
+
+# Ubuntu
+    Server: Received String = HelloWorld
+(Ctrl + C 눌르지 않는 한 서버-부모 계속 실행됨 - 무한루프)
+
+# Oracle VM VirtualBox Ubuntu
+sudo wireshark &
+
+# Oracle VM VirtualBox Wireshark
+(enp0s3(이더넷 장치) 클릭)
+필터 : tcp.port == 9191
+
+# Oracle VM VirtualBox Ubuntu
+./client
+
+# Oracle VM VirtualBox Wireshark
+(way handshake 과정 볼 수 있음)
+(PSH는 버퍼에 넣지 않고 바로 보내게 됨, Data에서 HelloWorld 볼 수 있음)
+(FIN 이후는 연결 종료 과정)
+
+이후 위 방식대로 계속 가능..
+
+# Oracle VM VirtualBox Ubuntu
+./client
+
+# Ubuntu
+    Server: Received String = HelloWorld
