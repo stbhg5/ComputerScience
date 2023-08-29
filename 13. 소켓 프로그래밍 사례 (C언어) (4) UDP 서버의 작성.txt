@@ -1,0 +1,95 @@
+[소켓 프로그래밍 사례 (C언어) (4) UDP 서버의 작성]
+
+# Ubuntu
+cd projects
+mkdir udp_server
+cd udp_server
+code .
+udp_server.c (파일 생성)
+
+# udp_server.c
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <stdio.h>
+
+void error(char *msg) {
+    perror(msg);
+    exit(0);
+}
+
+int main(int argc, char *argv[]) {
+
+    int sock, length, fromlen, n; // 소켓, 길이, 가져오고자 하는 길이, 변수
+
+    // IPv4 담기위한 구조체
+    struct sockaddr_in server;
+    struct sockaddr_in from;
+
+    char buf[1024];
+
+    if (argc < 2) {
+        fprintf(stderr, "ERROR no port provided\n");
+        exit(0);
+    }
+
+    sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0) error("Opening socket error");
+
+    length = sizeof(server); // 서버 주소 길이
+
+    bzero(&server, length);
+
+    server.sin_famaily = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANNY; // 어떤 UDP 클라이언트도 받을 수 있도록 INADDR_ANNY 사용
+    // 프로그램명 = argv[0], 서버_IP = argv[1], 포트번호 = argv[2], argc = 3
+    // udp_server 192.168.50.104 9191
+    server.sin_port = htons(atoi(argv[1])); // 아스키를 Integer로 바꿈
+
+    if (bind(sock, (struct sockaddr *) &server, length) < 0) {
+        error("Binding Error");
+    }
+
+    // 상대측 주소 길이 담음 (IPv4)
+    fromlen = sizeof(struct sockaddr_in);
+
+    while (1) { // UDP의 연결 확정 과정 없이 사용 가능
+
+        // UDP에는 연결 확정 과정이 없기 때문에 accept() 등의 함수를 사용하지 않는다.
+        n = recvfrom( // 받아갈 데이터가 없으므로 프로그램은 슬립 상태에 들어간다. 네트워크 디바이스에 의해 깨어난 후 데이터를 받아간다.
+            sock
+          , buf
+          , 1024
+          , 0
+          , (struct sockaddr *) &from
+          , &fromlen
+        ); // 매개변수 : 소켓 식별자, 받을 버퍼, 버퍼 크기, 플래그, 서버주소, 서버주소 크기
+
+        if (n < 0) error("Receive Error");
+        
+        // 팁! stdio.h에서 사용하는 표준 입출력 장치
+        // 표준 입력 장치 : stdin - 식별 번호 0
+        // 표준 출력 장치 : stdout - 식별 번호 1
+        // 표준 에러 장치 : stderr - 식별 번호 2 (버퍼 없이 출력)
+        write(1, "Received ad datagram: ", 21);
+        write(1, buf, n); // 클라이언트로 받은 버퍼의 내용도 n만큼 출력
+
+        n = sendto(
+            sock
+          , "Server: Helloworld Datagram\n"
+          , 20
+          , 0
+          , (struct sockaddr *) &from
+          , fromlen
+        );
+
+        if (n < 0) error("Send Error);
+
+    }
+
+}
+
+저장 후 Terminal - Configure Default Built Task ... - C/C++: gcc build active file (compiler: /usr/bin/gcc)
+Terminal - Run Build Task...
+udp_server 실행파일 만들어짐
