@@ -1,0 +1,105 @@
+[소켓 프로그래밍 사례 (C언어) (5) UDP 클라이언트의 작성과 실행]
+
+# Oracle VM VirtualBox Ubuntu
+pwd
+    /home/youngdeok/projects
+mkdir udp_client
+cd udp_client
+code .
+udp_client.c (파일 생성)
+
+# udp_client.c
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+include <arpa/inet.h>
+#include <netdb.h>
+#include <stdio.h>
+
+void error(char *msg) {
+    perror(msg);
+    exit(0);
+}
+
+int main(int argc, char *argv[]) {
+
+    int sock, length, n;
+    struct sockaddr_in server, from;
+    struct hostent * hp; // 싱글 호스트에 대한 데이터베이스 엔티를 가리키도록 명령행으로부터 받은 (십진)주소를 호스트 주소 형식으로 바꾸기 위해 정의
+
+    char buffer[256];
+
+    // argc
+    // 프로그램명 서버주소 포트번호
+    // argv[0]    argv[1]  argv[2]
+    // 따라서 argc는 3이 된다. (개수를 가리킴)
+    if (argc != 3) error("Usage: udp_client server_ip port");
+
+    sock = socket(AF_INET, SOCK_DGRAM, 0); // 소켓 디스크립트 sock으로 넘어옴
+    if (sock < 0) error("Socket Error");
+
+    server.sin_famaily = AF_INET;
+    hp = gethostbyname(argv[1]); // gethostbyname(문자열값) : 문자열 값으로부터 호스트 IP주소로 가져오기. 문자열 값은 "192.168.50.12"과 같아야 한다.
+    if (hp == 0) error("Error");
+
+    bcopy((char *) hp -> h_addr, (char *) &server.sin_addr, hp -> h_length); // bcopy(소스, 복사위치, 길이) : 첫 번째 소스 인자의 문자열을 두 번째 복사 위치 인자에 길이만큼 복사한다.
+    server.sin_port = htons(atoi(argv[2]));
+
+    length = sizeof(struct sockaddr_in);
+
+    printf("Please enter the message: ");
+    bzero(buffer, 256); // 256개 만큼 0으로 채우기
+    fgets(buffer, 255, stdin); // fgets(받을 버퍼, 갯수, 스트림장치) : 스트림 장치로부터 문자열을 받는다. 여기서는 표준 입력장치 stdin(0)으로부터 입력 받는다.
+
+    // 서버에게 콘솔로부터 입력받은 내용 보냄
+    n = sendto(sock, buffer, strlen(buffer), 0, (struct sockaddr *) &server, length);
+    if (n < 0) error("Send Error");
+
+    write(1, "Got a message", 14); // stdout이라는 콘솔장치로 보냄
+    write(1, buffer, n);
+
+}
+
+저장 후 Terminal - Configure Default Built Task ... - C/C++: gcc build active file (compiler: /usr/bin/gcc) (tasks.json 파일 만들어짐)
+Terminal - Run Build Task...
+udp_client 실행파일 만들어짐
+
+# Ubuntu
+ls
+    udp_server  udp_server.c
+
+# Oracle VM VirtualBox Ubuntu
+ls
+    udp_client  udp_client.c
+
+# Ubuntu
+ifconfig eth1
+    ...
+    inet 192.168.50.104
+    ...
+
+# Oracle VM VirtualBox Ubuntu
+ifconfig
+    ...
+    inet 192.168.50.79
+    ...
+
+# Ubuntu
+./udp_server 9191
+
+# Oracle VM VirtualBox Ubuntu
+./udp_client 192.168.50.104 9191
+    Please enter the message: Hello World!
+    Got a messageHello World!
+
+# Ubuntu
+    Received ad datagram:Hello World!
+
+# Oracle VM VirtualBox Ubuntu
+./udp_client 192.168.50.104 9191
+    Please enter the message: asdf asdf
+
+# Ubuntu
+    Received ad datagram:asdf asdf
+
+무한루프 돌고 있기 때문에, 원하는 메시지 자유롭게 보낼 수 있다.
