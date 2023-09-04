@@ -1,0 +1,83 @@
+[소켓 프로그래밍 사례 (Python) (2) 파이썬 간단한 클라이언트 서버 프로그램]
+
+# Ubuntu
+cd projects
+mkdir simple-server-py
+cd simple-server-py
+code .
+
+# VSCode
+server.py (파일 생성)
+
+# server.py
+# 소켓관련 패키지 import
+import socket
+
+# 파일 디스크립터를 얻는 것과 비슷하지만, 소켓의 객체를 얻어온다.
+# socket 객체의 socket() 함수 기본값 : socket.socket(family = AF_INET, type = SOCK_STREAM, proto = 0, fileno = None)
+# 디폴트 값이 있기 때문에 그냥 생성하도 무방
+# 마지막 인자를 생략하면 기본값(default)인 0과 None이 사용됨
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+server_socket.setsockopt(socket.SOL_SOCK, socket.REUSEADDR, 1) # setsockopt() : 소켓의 옵션을 지정하기 위해 사용
+
+(Ctrl + shift + p 이후 Toggle Word Wrap (Alt + Z) 하면 코드가 화면에서 잘리지 않는다)
+
+server_socket.bind(("", 9191)) # "" : 어느 주소든 다 받게 함
+
+server_socket.listen() # default로 그대로 둠
+
+client_socket, addr = server_socket.accept()
+print("Connected: ", addr)
+
+while True:
+
+    data = client_socket.recv(1024)
+
+    if not data: # 빈 문자열 오면 해당 서버 프로그램 중단
+        break;
+
+    print("Received from", addr, data.decode())
+
+    client_socket.sendall(data)
+
+client_socket.close()
+server_socket.close()
+
+저장 후 ▷(Run Python File in Terminal) 버튼 클릭
+(방화벽 허용)
+그럼 서버는 대기 상태가 된다.
+
+# Oracle VM VirtualBox Ubuntu
+cd projects
+mkdir simple-client-py
+cd simple-client-py
+code .
+
+# VSCode
+client.py (파일 생성)
+
+# client.py
+import socket
+
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+client_socket.connect(("192.168.50.104", 9191))
+
+# 인코딩과 디코딩 : 다양한 언어를 지원하기 위해 파이썬에서는 send나 recv 관련 함수를 쓸 때 바이트 단위 전송이 기본이므로, 2바이트나 4바이트 문자체계를 사용할때는 encode()와 decode()를 함수를 사용하여
+# 네트워크로 보낼 때는 인코딩, 받을 때는 디코딩을 사용해 다양한 언어를 지원할 수 있다.
+client_socket.sendall('Hello! Client!'.encode()) # 타입 정확히 맞추기 위해 encode() 사용
+
+data = client_socket.recv(1024)
+print('Received', repr(data.decode())) # repr() : 특정 객체가 넘어왔을 때 그 객체에 대한 반환값에 따라 타입을 넣어줄 수 있다.
+
+client_socket.close()
+
+저장 후 ▷ 버튼 클릭
+
+# Oracle VM VirtualBox Ubuntu
+    Received 'Hello! Client!' (서버로부터 받음)
+
+# Ubuntu
+    Connected: ('192.168.50.79, 55352) (임시로 할당된 클라이언트 포트번호)
+    Received from ('192.168.50.79, 55352) Hello! Client!
