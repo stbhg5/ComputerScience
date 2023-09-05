@@ -1,0 +1,126 @@
+[소켓 프로그래밍 사례 (Python) (3) 스레드를 활용한 동시성 서버]
+
+# Ubuntu
+cd projects
+mkdir server-thread-py
+cd server-thread-py
+code .
+
+# VSCode
+server_thread.py (파일 생성)
+
+# server_thread.py
+import socket
+from _thread import *
+
+# 스레드로 사용할 루틴
+def threaded(client_socket, sock_addr): # 클라이언트 소켓 식별 객체, 주소
+
+    print('Connected:', sock_addr[0], ':', sock_addr[1]) # IP주소, port 번호
+
+    while True:
+
+        try:
+
+            data = client_socket.recv(1024)
+                if not data:
+                    print("Error")
+                print('Received: ', data.decode())
+
+                client_socket.send(data) # 데이터 다시 보냄
+
+        except ConnectionResetError as e:
+            print('Disconnected: ', sock_addr[0], ':', sock_addr[1])
+            break
+
+    client_socket.close()
+
+# 서버에서 사용할 루틴
+server_socket = socket.socket() # 생략 (기본값으로 AF_INET, SOCK_STREAM이 지정되어 있음)
+server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+server_socket.bind(("", 9191))
+server_socket.listen(5)
+
+print('Server Start')
+
+while True:
+    print('Wait')
+
+    client_socket, sock_addr = server_socket.accept() # 식별자, 주소 체계 반환
+    start_new_thread(threaded, (client_socket, sock_addr)) # C언어에선 fork 썻음
+
+server_socket.close()
+
+# Oracle VM VirtualBox Ubuntu
+cd projects
+mkdir client-thread-py
+cd client-thread-py/
+code .
+
+# VSCode
+client-thread.py (파일 생성)
+
+# client-thread.py
+import socket
+
+client_socket = socket.socket()
+client_socket.connect(("192.168.50.104", 9191)) # 주소와 포트 튜플로 함께 전달하기 위해서 ()를 2겹
+
+while True:
+    message = input('Enter Message: ')
+    if message == 'quit':
+        break
+    
+    client_socket.send(message.encode())
+    data = client_socket.recv(1024)
+
+    print('Received: ', repr(data.decode()))
+
+client_socket.close()
+
+# Ubuntu
+ls
+python3 ./server_thread.py
+    Server Start
+    Wait
+
+# Oracle VM VirtualBox Ubuntu1
+ls
+python3 ./client-thread.py
+    Enter Message:
+
+# Oracle VM VirtualBox Ubuntu2
+cd projects/client-thread-py/
+python3 ./client-thread.py
+    Enter Message:
+
+# Ubuntu
+    Wait
+    Connected: 192.168.50.79 : 55592
+    Wait
+    Connected: 192.168.50.79 : 55594
+
+같은 IP의 가상머신에서 접속했지만, 포트번호만 달라졌다.
+
+# Oracle VM VirtualBox Ubuntu1
+    Enter Message: Hello
+    Received: 'Hello'
+    Enter Message: asdf
+    Received: 'asdf'
+    Enter Message:
+
+# Oracle VM VirtualBox Ubuntu2
+    Enter Message: World
+    Received: 'World'
+    Enter Message: qwer
+    Received: 'qwer'
+    Enter Message:
+
+# Ubuntu
+    Received: Hello
+    Received: World
+    Received: asdf
+    Received: qwer
+
+서버에서 2개의 클라이언트를 무한루프로 받으며, 받아진 2개는 스레드로 분리되어 동시성 서버 구현 가능.
