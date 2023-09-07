@@ -1,0 +1,80 @@
+[소켓 프로그래밍 사례 (Java) (2) 자바 서버 프로그램 작성]
+
+# Ubuntu
+cd projects
+mkdir simple-server-java
+cd simple-server-java
+code .
+
+# VSCode
+SimpleServer.java (파일 생성)
+
+# SimpleServer.java
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class SimpleServer {
+
+    public static void main(String[] args) {
+
+        ServerSocket serverSocket = null;
+        Socket socket = null;
+
+        try {
+
+            serverSocket = new ServerSocket();
+            serverSocket.bind(new InetSocketAddress("", 9191)); // 인자에 new를 이용해 객체 생성 없이 익명으로 객체를 지정할 수 있다, "" 부분은 향후 "O.O.O.O"으로 수정될 것이다.
+
+            while (true) {
+                socket = serverSocket.accept();
+                InetSocketAddress clientAddr = (InetSocketAddress) socket.getRemoteSocketAddress(); // 서버에 접근한 클라이언트 주소를 가져온다.
+                System.out.println("Connected: " + clientAddr.getAddress() + ":" + clientAddr.getPort());
+
+                byte[] bytes = null;
+                String message = null;
+
+                // 자바에서는 입/출력 처리를 위해 InputStream과 OutputStream을 이용한다.
+                // Read(읽기)
+                InputStream is = socket.getInputStream();
+                bytes = new byte[100];
+                int readByteCount = is.read(bytes);
+                message = new String(bytes, 0, readByteCount, "UTF-8");
+                System.out.println("Received: " + message);
+
+                // Write(쓰기)
+                OutputStream os = socket.getOutputStream();
+                message = "Hello Client!";
+                bytes = message.getBytes("UTF-8");
+
+                os.write(bytes);
+                os.flush(); // 버퍼에 쌓인게 빠져나오도록 flush 호출
+                System.out.println("Server: Sent the message");
+
+                is.close();
+                os.close();
+                socket.close();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (!serverSocket.isClosed()) {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+}
+
+Terminal - Configure Default Build Task... - java: exportjar:simpe-server-java - tasks.json 파일 생성
+▷(Run Java) 아이콘 클릭
+TERMINAL에 컴파일 완료된 내용이 뜨며, 서버가 클라이언트 들어오기를 대기.
