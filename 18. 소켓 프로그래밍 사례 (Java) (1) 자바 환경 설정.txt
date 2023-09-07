@@ -1,0 +1,62 @@
+[소켓 프로그래밍 사례 (Java) (1) 자바 환경 설정]
+
+# Ubuntu
+sudo apt install default-jdk
+java --version
+    openjdk 11.0.11 2021-04-20 (설치)
+javac --version (컴파일러 설치 확인)
+    javac 11.0.11
+cd projects
+mkdir hello-java
+cd hello-java
+code .
+
+# VSCode
+VSCode의 Extensions 에서 java 검색
+Debugger for Java, Extension Pack for Java, 인텔리센스를 위해 Language Support for Java(TM) by Red Hat, Maven for Java, Test Runner for Java, Project Manager for Java도 설치됨.
+Hello.java (파일 생성)
+
+# Hello.java
+public class Hello {
+
+    public static void main(String[] args) {
+
+        System.out.println("Hello World");
+
+    }
+
+}
+
+실행 방법은, 코드 힌트의 Run, ▷(Run Java) 아이콘, Run - Run Without Debugging
+Terminal - Configure Default Build Task... - java: exportjar:hello-java - tasks.json 파일 생성(hello-java 폴더에 있는 내용 빌드 하겠다는 표기)
+▷(Run Java) 아이콘 클릭 - 방화벽 허용
+TERMINAL에 컴파일 완료된 내용과 Hello World가 출력됨
+
+# Oracle VM VirtualBox Ubuntu
+sudo apt install default-jdk
+java --version
+javac --version
+cd projects
+mkdir hello-java
+cd hello-java
+code .
+
+# VSCode
+VSCode의 Extensions 에서 java 검색
+Debugger for Java, Extension Pack for Java, 인텔리센스를 위해 Language Support for Java(TM) by Red Hat, Maven for Java, Test Runner for Java, Project Manager for Java도 설치됨.
+Hello.java (파일 생성)
+
+# Hello.java
+public class Hello {
+
+    public static void main(String[] args) {
+
+        System.out.println("Hello World");
+
+    }
+
+}
+
+Terminal - Configure Default Build Task... - java: exportjar:hello-java - tasks.json 파일 생성
+Run - Run Without Debugging
+TERMINAL에 컴파일 완료된 내용과 Hello World가 출력됨
