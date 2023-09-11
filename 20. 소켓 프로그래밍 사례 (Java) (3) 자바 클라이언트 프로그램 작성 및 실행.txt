@@ -1,0 +1,105 @@
+[소켓 프로그래밍 사례 (Java) (3) 자바 클라이언트 프로그램 작성 및 실행]
+
+# Oracle VM VirtualBox Ubuntu
+cd projects
+mkdir simple-client-java
+cd simple-client-java
+code .
+
+# VSCode
+SimpleClient.java (파일 생성)
+
+# SimpleClient.java
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+
+public class SimpleClient {
+
+    public static void main(String[] args) {
+
+        Socket socket = null;
+
+        try {
+
+            socket = new Socket();
+            System.out.println("Client!");
+            socket.connect(new InetSocketAddress("192.168.50.104", 9191));
+
+            byte[] bytes = null;
+            String message = null;
+
+            OutputStream os = socket.getOutputStream();
+            message = "Hello Server!";
+            bytes = message.getBytes("UTF-8");
+            os.write(bytes);
+            os.flush();
+            System.out.println("Message sent!");
+
+            InputStream is = socket.getInputStream();
+            bytes = new byte[100];
+            int readBytesCount = is.read(bytes);
+            message = new String (bytes, 0, readBytesCount, "UTF-8");
+            System.out.println("Received: " + message);
+
+            os.close();
+            is.close();
+            socket.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+}
+
+▷(Run Java) 아이콘 클릭
+서버쪽 String 넘어오지 않음. 문제 발생.
+휴지통 버튼(Kill Terminal) 클릭
+서버쪽 코드도 중단
+
+# SimpleServer.java
+...
+serverSocket.bind(new InetSocketAddress("0.0.0.0", 9191));
+...
+
+▷(Run Java) 아이콘 클릭
+TERMINAL에 컴파일 완료된 내용이 뜨며, 서버가 클라이언트 들어오기를 대기.
+
+# SimpleClient.java
+
+▷(Run Java) 아이콘 클릭
+
+# Oracle VM VirtualBox Ubuntu VSCode TERMINAL
+    Client!
+    Message sent!
+    Received: Hello Client!
+
+# Ubuntu VSCode TERMINAL
+    Connected: /192.168.50.79:53402
+    Received: Hello Server!
+    Server: Sent the message
+
+# SimpleClient.java
+...
+serverSocket = new ServerSocket(9191); // IP Address 생략하면 Default로 모든 클라이언트 IP 받는다.
+// serverSocket.bind(new InetSocketAddress("0.0.0.0", 9191));
+...
+
+▷(Run Java) 아이콘 클릭
+
+# SimpleClient.java
+...
+socket = new Socket("192.168.50.104", 9191);
+System.out.println("Client!");
+// socket.connect(new InetSocketAddress("192.168.50.104", 9191));
+...
+
+▷(Run Java) 아이콘 클릭
+
+# Oracle VM VirtualBox Ubuntu VSCode TERMINAL
+    Client!
+    Message sent!
+    Received: Hello Client!
